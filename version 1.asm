@@ -44,6 +44,6 @@ lw $t9,($s0)
 loopasd:
 beq $t9,$t0,pintar_blanco
 beq $t9,$t1,pintar_verde
-beq $t9,$t2,pintar_azul
+beq $t9,$t2,pintar_celeste
 beq $t9,$t3,pintar_rosado
 beq $t9,$t4,pintar_hola

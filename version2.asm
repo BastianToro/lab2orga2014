@@ -23,7 +23,7 @@ add $t6,$s0,$zero
 li $t3,0 # valor a llenar
 li $t7,0 # llena desde 0 hasta 150 (t8)
 mul $t8,$t1,$t2 # multiplica filas por columnas
-j loop_llenado
+j loop_llenado 
 
 loop_llenado: # loop que llena la matriz con 0
 sw $t3,($t6)

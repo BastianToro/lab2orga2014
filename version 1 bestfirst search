@@ -1,0 +1,57 @@
+.data
+
+inicio_x: .word 5
+inicio_y: .word 5
+final_x: .word 10
+final_y: .word 5
+
+#numeros random
+grafo: .word 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, -1
+filas: .word 15 	#limite filas
+columnas: .word 10	#limite columnas
+
+
+crear_Matriz:
+	la  $t1,filas 		# ancho de la matriz
+	la  $t2,columnas 	# alto de la matriz
+	li  $t5, 4		# 4 bits para la palabra del array
+	mul $a0, $t1, $t2	# Tamaño de la matriz
+	mul $a0, $a0, $t5	# se multiplica por 4 para darle a cada valor los 4 bits necesarios para que sea una palabra
+	li  $v0, 9		# retornamos el 9 de syscall, encargado de dar espacio de memoria.
+	syscall			# Se llama al syscall para ejecutar el valor al retorno.
+	move $s0,$v0   		# se hace copia del inicio de la direccion de memoria en $s0
+	la $t0, grafo		#cargamos los datos random del grafo.
+	
+	j ultima_posicion
+
+# $s0: inicio de la matriz
+ultima_posicion:
+	add $t0, $s0, $zero	# guardo en t0 el inicio de la matriz
+	la $t6, inicio_x	# se carga lo que hay en la coordenada x del inicio del camino
+	la $t7, inicio_y	# se carga lo que hay en la coordenada y del inicio del camino
+	mul $t4, $t2, $t6	# 10 x 5
+	add $t4, $t4, $t7	# (10 x 5 + 5)
+	mul $t4, $t4, $t5	# 4 x (10 x 5 + 5)
+	mul $t8, $t1, $t6	# 15 x 5
+	add $t8, $t8, $t7	# (15 x 5 + 5)
+	mul $t8, $t8, $t5	# 4 x (15 x 5 + 5)
+	add $t0, $t4, $t8	#ultima posicion del camino.
+	jal buscar_camino
+			
+buscar_camino:
+	addi $sp, $sp, -20	# Doy 5 espacio en el stack para guardar los valores de arriba, abajo, izquierdam derecha y pos original.
+	sw $t0, 20($sp)
+	addi $t4, $t0, 0	# t4 variable auxiliar.
+	jal posicion_derecha
+	
+
+posicion_arriba:
+	addi $t0, $t0, -64	#posicion de arriba del camino.
+posicion_abajo:
+	addi $t0, $t0, -64	#posicion de arriba del camino.
+posicion_izquierda:
+	addi $t0, $t0, -4	#posicion de la izquierda del camino.
+	
+posicion_derecha:
+	addi $t0, $t0, 4	#posicion de la derecha del camino.
+	

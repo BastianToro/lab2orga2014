@@ -32,11 +32,11 @@ ultima_posicion:
 	mul $t4, $s2, $s6	# 10 x 5
 	add $t4, $t4, $s7	# (10 x 5 + 5)
 	mul $t4, $t4, $t5	# 4 x (10 x 5 + 5)
-	mul $t8, $s1, $s6	# 15 x 5
-	add $t8, $t8, $s7	# (15 x 5 + 5)
+	mul $t8, $s1, $s7	# 15 x 5
+	add $t8, $t8, $s6	# (15 x 5 + 5)
 	mul $t8, $t8, $t5	# 4 x (15 x 5 + 5)
 	add $t0, $t4, $t8	#ultima posicion del camino.
-	jal buscar_camino
+	j buscar_camino
 			
 buscar_camino:
 	addi $sp, $sp, -20	# Doy 5 espacio en el stack para guardar los valores de arriba, abajo, izquierdam derecha y pos original.
@@ -44,18 +44,42 @@ buscar_camino:
 	addi $t4, $t0, 0	# t4 variable auxiliar.
 	jal posicion_derecha
 	
+	#cargo los valores del grafo
+	lw $t0, 20($sp)		# obtengo la posicion inicial o ultima posicion.
 	lw $t4, 16($sp)		# posicion derecha
 	lw $t1, 12($sp)		# posicion arriba
 	lw $t9, 8($sp)		# posicion izquierda
 	lw $t2, 4($sp)		# posicion abajo
+	addi $sp, $sp, 20	#vuelvo el stack a su estado original
 	jal if
 	
-	#cargo los valores del grafo
-	#sumo el camino menor
-	#cambio la ultima posicion
-	#y vuelvo a hacer lo mismo con la ultima posicion
-contador_costo:
-		
+	jal posicion_final
+	
+	# Hacer la suma del camino
+	addi $t8, $zero, 0	# dejo t8 en 0.
+	add $t8, $s3, $t0	# t8 tendra el inicio o utlima posicion en el grafo.
+	move $t0, $t4		#guardo la siguiente 
+	beq $t0,$t2,FIN		# Si llegamos a la ultima posicion salimos del bucle.
+	add $t4, $s3, $t4	#cargo el movimiento de menor costo.
+	lw $t1, ($t8)		#cargo la primera posicion
+	lw $t9, ($t4)		#cargo la siguiente posicion
+	add $t9, $t9, $t1	#sumo el camino determinado del grafo.
+	sw $t8, ($s6)		#escribo el valor de 5 anterior a la ultima posicion.
+	
+	j buscar_camino		#y vuelvo a hacer lo mismo con la ultima posicion
+	
+posicion_final:
+	add $t2, $s0, $zero	# guardo en t0 el inicio de la matriz
+	la $s3, final_x		# se carga lo que hay en la coordenada x del final del camino
+	la $s4, final_y		# se carga lo que hay en la coordenada y del final del camino
+	mul $t1, $s2, $s3	# 10 x 10
+	add $t1, $t1, $s4	# (10 x 10 + 5)
+	mul $t1, $t1, $t5	# 4 x (10 x 10 + 5)
+	mul $t9, $s1, $s4	# 15 x 5
+	add $t9, $t8, $s3	# (15 x 5 + 10)
+	mul $t9, $t8, $t5	# 4 x (15 x 5 + 10)
+	add $t2, $t4, $t9	#posicion final del camino.
+	jr $ra				
 	
 if:
 	slt $t8, $t4, $t1	# si $t4 < $t1
@@ -103,3 +127,9 @@ posicion_derecha:
 	addi $t4, $t4, -4	#volvemos an valor inicial de t4.
 	j posicion_arriba
 	
+FIN:
+	addi $a0, $t9, 0	#total del costo de ir al inicio al final.
+	li $v0, 5		#copio el valor entero dado en a0
+	syscall			#muestro por consola el valor del camino
+	li $v0, 10		#opcion de exit
+	syscall

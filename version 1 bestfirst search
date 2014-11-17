@@ -1,28 +1,11 @@
 .data
 
-inicio_x: .word 5
-inicio_y: .word 5
-final_x: .word 10
-final_y: .word 5
-
 #numeros random
 grafo: .word 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, -1
-filas: .word 15 	#limite filas
-columnas: .word 10	#limite columnas
 
 .text
 crear_Matriz:
-	li  $s1,15		# ancho de la matriz
-	li  $s2,10	# alto de la matriz
-	li  $t5, 4		# 4 bits para la palabra del array
-	mul $a0, $s1, $s2	# Tamaño de la matriz
-	mul $a0, $a0, $t5	# se multiplica por 4 para darle a cada valor los 4 bits necesarios para que sea una palabra
-	li  $v0, 9		# retornamos el 9 de syscall, encargado de dar espacio de memoria.
-	syscall			# Se llama al syscall para ejecutar el valor al retorno.
-	move $s0,$v0   		# se hace copia del inicio de la direccion de memoria en $s0
-	li $t6,98
-	sw $t6, ($s0)
-	la $s3, grafo		#cargamos los datos random del grafo.
+	la $s3, grafo		#cargamos la primera direccion de memoria del grafo.
 	j ultima_posicion
 	
 

@@ -6,7 +6,7 @@ grafo: .word 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3
 .text
 crear_Matriz:
 	li  $s1,15		# ancho de la matriz
-	li  $s2,10	# alto de la matriz
+	li  $s2,10		# alto de la matriz
 	li  $t5, 4		# 4 bits para la palabra del array
 	mul $a0, $s1, $s2	# Tamaño de la matriz
 	mul $a0, $a0, $t5	# se multiplica por 4 para darle a cada valor los 4 bits necesarios para que sea una palabra
@@ -19,8 +19,8 @@ crear_Matriz:
 
 ultima_posicion:
 	add $t0, $s3, $zero	# guardo en t0 el inicio de la matriz
-	li $s6, 5	# se carga lo que hay en la coordenada x del inicio del camino
-	li $s7, 5	# se carga lo que hay en la coordenada  y del inicio del camino
+	li $s6, 5		# se carga lo que hay en la coordenada x del inicio del camino
+	li $s7, 5		# se carga lo que hay en la coordenada  y del inicio del camino
 	addi $t4, $s6, -1
 	addi $t8, $s7, -1
 	mul $t4, $t4, 4
@@ -105,15 +105,15 @@ else3:
 	jr $ra
 	
 posicion_arriba:
-	addi $t1, $t0, -64	#posicion de arriba del camino.
+	addi $t1, $t0, -60	#posicion de arriba del camino.
 	sw $t1, 12($sp)		#guardo en stack la posicion arriba.
-	addi $t1, $t1, 64	#posicion de arriba del camino
+	addi $t1, $t1, 60	#posicion de arriba del camino
 	j posicion_izquierda
 	
 posicion_abajo:
-	addi $t2, $t0, 64	#posicion de arriba del camino.
+	addi $t2, $t0, 60	#posicion de arriba del camino.
 	sw $t2, 4($sp)		#guardo en stack la posicion abajo.
-	addi $t1, $t1, -64	#posicion de arriba del camino.
+	addi $t1, $t1, -60	#posicion de arriba del camino.
 	jr $ra
 	
 posicion_izquierda:

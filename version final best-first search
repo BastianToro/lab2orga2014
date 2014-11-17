@@ -1,0 +1,136 @@
+.data
+
+#numeros random
+grafo: .word 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, -1
+
+.text
+crear_Matriz:
+	li  $s1,15		# ancho de la matriz
+	li  $s2,10	# alto de la matriz
+	li  $t5, 4		# 4 bits para la palabra del array
+	mul $a0, $s1, $s2	# Tamaño de la matriz
+	mul $a0, $a0, $t5	# se multiplica por 4 para darle a cada valor los 4 bits necesarios para que sea una palabra
+	li  $v0, 9		# retornamos el 9 de syscall, encargado de dar espacio de memoria.
+	syscall			# Se llama al syscall para ejecutar el valor al retorno.
+	move $s0,$v0   		# se hace copia del inicio de la direccion de memoria en $s0
+	la $s3, grafo		#cargamos los datos random del grafo.
+	j ultima_posicion
+	
+
+ultima_posicion:
+	add $t0, $s3, $zero	# guardo en t0 el inicio de la matriz
+	li $s6, 5	# se carga lo que hay en la coordenada x del inicio del camino
+	li $s7, 5	# se carga lo que hay en la coordenada  y del inicio del camino
+	addi $t4, $s6, -1
+	addi $t8, $s7, -1
+	mul $t4, $t4, 4
+	mul $t8, $t8, 60
+	add $t8, $t8, $t4
+	add $t0, $t0, $t8 #ultima posicion del camino.
+	j buscar_camino
+			
+buscar_camino:
+	addi $sp, $sp, -20	# Doy 5 espacio en el stack para guardar los valores de arriba, abajo, izquierdam derecha y pos original.
+	sw $t0, 20($sp)
+	addi $t4, $t0, 0	# t4 variable auxiliar.
+	jal posicion_derecha
+	
+	#cargo los valores del grafo
+	lw $t0, 20($sp)		# obtengo la posicion inicial o ultima posicion.
+	lw $t4, 16($sp)		# posicion derecha
+	lw $t1, 12($sp)		# posicion arriba
+	lw $t9, 8($sp)		# posicion izquierda
+	lw $t2, 4($sp)		# posicion abajo
+	addi $sp, $sp, 20	#vuelvo el stack a su estado original
+	#lw $t4, ($t4)
+	#lw $t1, ($t1)
+	#lw $t9, ($t9)
+	#lw $t2, ($t2)
+	jal if
+	
+	jal posicion_final
+	
+	# Hacer la suma del camino
+	addi $t8, $zero, 0	# dejo t8 en 0.
+	add $t8, $s3, $t0	# t8 tendra el inicio o utlima posicion en el grafo.
+	move $t0, $t4		#guardo la siguiente 
+	addi $t3, $t3, 1	
+	beq $t3,100,FIN		# Si llegamos a la ultima posicion salimos del bucle.
+	add $t4, $s3, $t4	#cargo el movimiento de menor costo.
+	move $t1, $t8		#cargo la primera posicion
+	move $t9, $t4		#cargo la siguiente posicion
+	add $t9, $t9, $t1	#sumo el camino determinado del grafo.
+	#sw $t8, 0($s6)		#escribo el valor de 5 anterior a la ultima posicion.
+	
+	j buscar_camino		#y vuelvo a hacer lo mismo con la ultima posicion
+	
+posicion_final:
+	add $t2, $s3, $zero	# guardo en t0 el inicio de la matriz
+	li $s3, 10	# se carga lo que hay en la coordenada x del final del camino
+	li $s4, 5		# se carga lo que hay en la coordenada y del final del camino
+	addi $t1, $zero, 0
+	addi $t9, $zero, 0
+	addi $t1, $s3, -1
+	addi $t9, $s4, -1
+	mul $t1, $t1, 4
+	mul $t9, $t9, 60
+	add $t9, $t9, $t1
+	add $t2, $t2, $t9	#ultima posicion del camino.
+	jr $ra				
+	
+	
+	
+if:	
+	
+	slt $t8, $t4, $t1	# si $t4 < $t1
+	beq $t8, 0, else	# si es verdad seguimos, sino vamos a else (t4 seria mayor).
+	move $t4, $t1		#elimino t4 y guardo t1 en ella porque es mayor
+	j else
+	
+else:	
+	
+	slt $t8, $t4, $t9	# si $t4 < $t9
+	beq $t8, 0, else2	# si es verdad seguimos, sino vamos a else2 (t9 seria mayor).
+	move $t4, $t9		#elimino t4 y guardo t9 en ella porque es mayor
+	j else2
+	
+else2:
+	slt $t8,$t4, $t2	# si $tt4 < $t2
+	beq $t8, 0, else3	# si es verdad seguimos, sino vamos a else2 (t9 seria mayor).
+	move $t4, $t2		#elimino t4 y guardo t2 en ella porque es mayor.
+	j else3	
+
+else3:
+	move $t7, $t4		#t4 es el mayor
+	jr $ra
+	
+posicion_arriba:
+	addi $t1, $t0, -64	#posicion de arriba del camino.
+	sw $t1, 12($sp)		#guardo en stack la posicion arriba.
+	addi $t1, $t1, 64	#posicion de arriba del camino
+	j posicion_izquierda
+	
+posicion_abajo:
+	addi $t2, $t0, 64	#posicion de arriba del camino.
+	sw $t2, 4($sp)		#guardo en stack la posicion abajo.
+	addi $t1, $t1, -64	#posicion de arriba del camino.
+	jr $ra
+	
+posicion_izquierda:
+	addi $t9, $t4, -4	#posicion de la izquierda del camino.
+	sw $t9, 8($sp)		#guardo en stack la posicion izquierda.
+	addi $t9, $t9, 4	#volvemos an valor inicial de t4.
+	j posicion_abajo
+	
+posicion_derecha:
+	addi $t4, $t4, 4	#posicion de la derecha del camino.
+	sw $t4, 16($sp)		#guardo en stack la posicion derecha.
+	addi $t4, $t4, -4	#volvemos an valor inicial de t4.
+	j posicion_arriba
+	
+FIN:
+	addi $a0, $t9, 0	#total del costo de ir al inicio al final.
+	li $v0, 1		#copio el valor entero dado en a0
+	syscall			#muestro por consola el valor del camino
+	li $v0, 10		#opcion de exit
+	syscall

@@ -6,36 +6,36 @@ final_x: .word 10
 final_y: .word 5
 
 #numeros random
-grafo: .word 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, -1
+grafo: .word 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, -1
 filas: .word 15 	#limite filas
 columnas: .word 10	#limite columnas
 
-
+.text
 crear_Matriz:
-	la  $s1,filas 		# ancho de la matriz
-	la  $s2,columnas 	# alto de la matriz
+	li  $s1,15		# ancho de la matriz
+	li  $s2,10	# alto de la matriz
 	li  $t5, 4		# 4 bits para la palabra del array
 	mul $a0, $s1, $s2	# Tamaño de la matriz
 	mul $a0, $a0, $t5	# se multiplica por 4 para darle a cada valor los 4 bits necesarios para que sea una palabra
 	li  $v0, 9		# retornamos el 9 de syscall, encargado de dar espacio de memoria.
 	syscall			# Se llama al syscall para ejecutar el valor al retorno.
 	move $s0,$v0   		# se hace copia del inicio de la direccion de memoria en $s0
+	li $t6,98
+	sw $t6, ($s0)
 	la $s3, grafo		#cargamos los datos random del grafo.
-	
 	j ultima_posicion
+	
 
-# $s0: inicio de la matriz
 ultima_posicion:
-	add $t0, $s0, $zero	# guardo en t0 el inicio de la matriz
-	la $s6, inicio_x	# se carga lo que hay en la coordenada x del inicio del camino
-	la $s7, inicio_y	# se carga lo que hay en la coordenada y del inicio del camino
-	mul $t4, $s2, $s6	# 10 x 5
-	add $t4, $t4, $s7	# (10 x 5 + 5)
-	mul $t4, $t4, $t5	# 4 x (10 x 5 + 5)
-	mul $t8, $s1, $s7	# 15 x 5
-	add $t8, $t8, $s6	# (15 x 5 + 5)
-	mul $t8, $t8, $t5	# 4 x (15 x 5 + 5)
-	add $t0, $t4, $t8	#ultima posicion del camino.
+	add $t0, $s3, $zero	# guardo en t0 el inicio de la matriz
+	li $s6, 5	# se carga lo que hay en la coordenada x del inicio del camino
+	li $s7, 5	# se carga lo que hay en la coordenada  y del inicio del camino
+	addi $t4, $s6, -1
+	addi $t8, $s7, -1
+	mul $t4, $t4, 4
+	mul $t8, $t8, 60
+	add $t8, $t8, $t4
+	add $t0, $t0, $t8 #ultima posicion del camino.
 	j buscar_camino
 			
 buscar_camino:
@@ -51,6 +51,10 @@ buscar_camino:
 	lw $t9, 8($sp)		# posicion izquierda
 	lw $t2, 4($sp)		# posicion abajo
 	addi $sp, $sp, 20	#vuelvo el stack a su estado original
+	#lw $t4, ($t4)
+	#lw $t1, ($t1)
+	#lw $t9, ($t9)
+	#lw $t2, ($t2)
 	jal if
 	
 	jal posicion_final
@@ -59,35 +63,41 @@ buscar_camino:
 	addi $t8, $zero, 0	# dejo t8 en 0.
 	add $t8, $s3, $t0	# t8 tendra el inicio o utlima posicion en el grafo.
 	move $t0, $t4		#guardo la siguiente 
-	beq $t0,$t2,FIN		# Si llegamos a la ultima posicion salimos del bucle.
+	la $t3, ($t0)		#cargo la direccion de memoria de t0
+	beq $t3,$t2,FIN		# Si llegamos a la ultima posicion salimos del bucle.
 	add $t4, $s3, $t4	#cargo el movimiento de menor costo.
-	lw $t1, ($t8)		#cargo la primera posicion
-	lw $t9, ($t4)		#cargo la siguiente posicion
+	move $t1, $t8		#cargo la primera posicion
+	move $t9, $t4		#cargo la siguiente posicion
 	add $t9, $t9, $t1	#sumo el camino determinado del grafo.
-	sw $t8, ($s6)		#escribo el valor de 5 anterior a la ultima posicion.
+	sw $t8, 0($s6)		#escribo el valor de 5 anterior a la ultima posicion.
 	
 	j buscar_camino		#y vuelvo a hacer lo mismo con la ultima posicion
 	
 posicion_final:
-	add $t2, $s0, $zero	# guardo en t0 el inicio de la matriz
-	la $s3, final_x		# se carga lo que hay en la coordenada x del final del camino
-	la $s4, final_y		# se carga lo que hay en la coordenada y del final del camino
-	mul $t1, $s2, $s3	# 10 x 10
-	add $t1, $t1, $s4	# (10 x 10 + 5)
-	mul $t1, $t1, $t5	# 4 x (10 x 10 + 5)
-	mul $t9, $s1, $s4	# 15 x 5
-	add $t9, $t8, $s3	# (15 x 5 + 10)
-	mul $t9, $t8, $t5	# 4 x (15 x 5 + 10)
-	add $t2, $t4, $t9	#posicion final del camino.
+	add $t2, $s3, $zero	# guardo en t0 el inicio de la matriz
+	li $s3, 10	# se carga lo que hay en la coordenada x del final del camino
+	li $s4, 5		# se carga lo que hay en la coordenada y del final del camino
+	addi $t1, $zero, 0
+	addi $t9, $zero, 0
+	addi $t1, $s3, -1
+	addi $t9, $s4, -1
+	mul $t1, $t1, 4
+	mul $t9, $t9, 60
+	add $t9, $t9, $t1
+	add $t2, $t2, $t9	#ultima posicion del camino.
 	jr $ra				
 	
-if:
+	
+	
+if:	
+	
 	slt $t8, $t4, $t1	# si $t4 < $t1
 	beq $t8, 0, else	# si es verdad seguimos, sino vamos a else (t4 seria mayor).
 	move $t4, $t1		#elimino t4 y guardo t1 en ella porque es mayor
 	j else
 	
 else:	
+	
 	slt $t8, $t4, $t9	# si $t4 < $t9
 	beq $t8, 0, else2	# si es verdad seguimos, sino vamos a else2 (t9 seria mayor).
 	move $t4, $t9		#elimino t4 y guardo t9 en ella porque es mayor
